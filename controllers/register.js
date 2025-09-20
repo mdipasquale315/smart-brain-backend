@@ -34,8 +34,8 @@ const handleRegister = (req, res, db, bcrypt) => {
 }
 
 module.exports = {
-  handleImage,
-  handleApiCall
-}
+  handleRegister: handleRegister
+};
+
 
 
