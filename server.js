@@ -21,15 +21,24 @@ const db = knex({
   }
 });
 
+
+;
+
+const { handleImage, handleApiCall } = require('./controllers/image');
+
+
+
 const app = express();
-const { handleApiCall } = require('./controllers/image');
-
-app.post('/imageurl', handleApiCall);
-
 app.use(cors({
   origin: 'https://smart-brain-frontend-7xlb.onrender.com'
 }));
 app.use(express.json()); // latest version of exressJS now comes with Body-Parser!
+const { handleApiCall } = require('./controllers/image');
+
+app.put('/image', handleImage); // for updating entries
+app.post('/imageurl', handleApiCall); // for face detection
+
+
 
 app.get('/', (req, res)=> { res.send(db.users) })
 app.post('/signin', signin.handleSignin(db, bcrypt))
