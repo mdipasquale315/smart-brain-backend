@@ -3,14 +3,14 @@ const {ClarifaiStub, grpc} = require("clarifai-nodejs-grpc");
 const stub = ClarifaiStub.grpc();
 
 const metadata = new grpc.Metadata();
-metadata.set("authorization", "Key YOUR_CLARIFAI_API_KEY");
+metadata.set("authorization", "Key b27bf519c2414f5aabffbe6e5a532bf1");
 
-const Clarifai = require('clarifai');
+//const Clarifai = require('clarifai');
 
 //You must add your own API key here from Clarifai. 
-const app = new Clarifai.App({
- apiKey: 'b27bf519c2414f5aabffbe6e5a532bf1' 
-});
+//const app = new Clarifai.App({
+// apiKey: 'b27bf519c2414f5aabffbe6e5a532bf1' 
+//});
 
 const handleApiCall = (req, res) => {
   // HEADS UP! Sometimes the Clarifai Models can be down or not working as they are constantly getting updated.
