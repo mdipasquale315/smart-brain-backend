@@ -1,71 +1,77 @@
-const clarifaiRequest = (req, res) => {
-    // Clarifai API: gRPC 
-    const APP_ID = 'face-detection';
-    const MODEL_ID = 'face-detection';
-    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
-    const IMAGE_URL = req.body.input;
+const express = require('express');
+const cors = require('cors');
+const { ClarifaiStub, grpc } = require('clarifai-nodejs-grpc');
 
-    const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
+const app = express();
 
-    const stub = ClarifaiStub.grpc();
+// CORS setup: Allow only your frontend domain
+app.use(cors({
+  origin: 'https://smart-brain-frontend-7xlb.onrender.com'
+}));
 
-    // This will be used by every Clarifai endpoint call
-    const metadata = new grpc.Metadata();
-    metadata.set("authorization", "Key b27bf519c2414f5aabffbe6e5a532bf1");
+// Middleware to parse JSON bodies
+app.use(express.json());
 
-    stub.PostModelOutputs(
-        {
-            user_app_id: {
-                "user_id": USER_ID,
-                "app_id": APP_ID
-            },
-            model_id: MODEL_ID,
-            version_id: MODEL_VERSION_ID, // This is optional. Defaults to the latest model version
-            inputs: [
-                { data: { image: { url: IMAGE_URL, allow_duplicate_url: true } } }
-            ]
-        },
-        metadata,
-        (err, response) => {
-            if (err) {
-                throw new Error(err);
-            }
+// Clarifai setup
+const stub = new ClarifaiStub.grpc();
+const metadata = new grpc.Metadata();
+metadata.set("authorization", "Key YOUR_API_KEY"); // <-- Replace with your Clarifai API key
 
-            if (response.status.code !== 10000) {
-                // console.log(IMAGE_URL)
-                throw new Error("Post model outputs failed, status: " + response.status.description);
-            }
+// Route: Handle image URL for Clarifai face detection
+app.post('/imageurl', (req, res) => {
+  const { input } = req.body; // Expecting { input: 'image_url_here' }
 
-            // Since we have one input, one output will exist here
-            const output = response.outputs[0];
+  if (!input) {
+    return res.status(400).json('No image URL provided');
+  }
 
-            // console.log("Predicted concepts:");
-            // for (const concept of output.data.concepts) {
-            //     console.log(concept.name + " " + concept.value);
-            // }
-            // console.log(output)
-            return res.json(output)
-        }
+  stub.PostModelOutputs(
+    {
+      model_id: "a403429f2ddf4b49b307e318f00e528b", // Face detection model
+      inputs: [{ data: { image: { url: input } } }]
+    },
+    metadata,
+    (err, response) => {
+      if (err) {
+        console.error('Clarifai API error:', err);
+        return res.status(500).json('Unable to work with API');
+      }
 
-    );
-}
+      if (response.status.code !== 10000) {
+        console.error('Clarifai response status:', response.status.description);
+        return res.status(500).json('Error from Clarifai API');
+      }
 
-const handleImage = (req, res, db) => {
-    const { id } = req.body;
-    if (!id) {
-        return res.status(400).json("Invalid Form Submission...!");
+      // Send response back to frontend
+      res.json(response);
     }
-    db('users').where({ id })
-        .returning('entries')
-        .increment('entries', 1)
-        .then(entries => {
-            (entries.length) ? res.json(entries[0].entries)
-                : res.status(400).json("Entry not found...!");
-        })
-        .catch(err => res.status(400).json("Error updating entries..."));
-}
+  );
+});
 
-module.exports = {
-    handleImage,
-    clarifaiRequest
-}
+// Route: Handle user signin (example, based on your existing code)
+app.post('/signin', (req, res) => {
+  const { email, password } = req.body;
+  // Your signin logic here (e.g., check database)
+  // For demonstration, send success response
+  res.json('Signed in successfully');
+});
+
+// Route: Handle user registration
+app.post('/register', (req, res) => {
+  const { name, email, password } = req.body;
+  // Your registration logic here
+  res.json('User registered');
+});
+
+// Route: Update user entries count
+app.put('/image', (req, res) => {
+  const { id } = req.body;
+  // Your database logic to update entries
+  res.json('Entries updated');
+});
+
+// Server listening
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
