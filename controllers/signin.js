@@ -1,70 +1,46 @@
-import React, { Component } from 'react';
+// controllers/signin.js
 
-class Signin extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      email: '',
-      password: ''
-    };
+// Example: exporting a function that handles sign-in requests
+const handleSignin = (db, bcrypt) => (req, res) => {
+  const { email, password } = req.body;
+
+  // Basic validation
+  if (!email || !password) {
+    return res.status(400).json('incorrect form submission');
   }
 
-  onEmailChange = (event) => {
-    this.setState({ email: event.target.value });
-  };
+  // Fetch email and hash from the 'login' table
+  db.select('email', 'hash')
+    .from('login')
+    .where('email', '=', email)
+    .then(data => {
+      if (data.length === 0) {
+        // No user found with that email
+        return res.status(400).json('wrong credentials');
+      }
 
-  onPasswordChange = (event) => {
-    this.setState({ password: event.target.value });
-  };
-
-  onSubmitSignIn = (e) => {
-    e.preventDefault(); // prevent page reload
-    fetch('https://smart-brain-backend-l6cv.onrender.com/signin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: this.state.email,
-        password: this.state.password
-      })
+      // Compare password with hashed password in database
+      const isValid = bcrypt.compareSync(password, data[0].hash);
+      if (isValid) {
+        // Fetch user data from 'users' table
+        return db.select('*')
+          .from('users')
+          .where('email', '=', email)
+          .then(user => {
+            if (user.length) {
+              res.json(user[0]); // Send user info back
+            } else {
+              res.status(400).json('unable to get user');
+            }
+          });
+      } else {
+        res.status(400).json('wrong credentials');
+      }
     })
-      .then(res => {
-        if (!res.ok) {
-          return res.text().then(text => { throw new Error(text) });
-        }
-        return res.json();
-      })
-      .then(user => {
-        if (user.id) {
-          this.props.loadUser(user);
-          this.props.onRouteChange('home');
-        }
-      })
-      .catch(err => alert('Sign-in failed: ' + err.message));
-  };
+    .catch(err => {
+      console.error('Error during sign-in:', err);
+      res.status(500).json('internal server error');
+    });
+};
 
-  render() {
-    return (
-      <div style={{ maxWidth: '300px', margin: 'auto' }}>
-        <h2>Sign In</h2>
-        {/* Wrap inputs in a form */}
-        <form onSubmit={this.onSubmitSignIn}>
-          <input
-            type="email"
-            placeholder="Email"
-            onChange={this.onEmailChange}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={this.onPasswordChange}
-            required
-          />
-          <button type="submit">Sign In</button>
-        </form>
-      </div>
-    );
-  }
-}
-
-export default Signin;
+module.exports = { handleSignin };
