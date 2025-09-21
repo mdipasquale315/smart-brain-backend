@@ -15,7 +15,7 @@ app.use(express.json());
 // Clarifai setup
 const stub = new ClarifaiStub.grpc();
 const metadata = new grpc.Metadata();
-metadata.set("authorization", "Key b27bf519c2414f5aabffbe6e5a532bf1");"); // <-- Replace with your Clarifai API key
+metadata.set("authorization", "Key b27bf519c2414f5aabffbe6e5a532bf1"); // <-- Replace with your Clarifai API key
 
 // Route: Handle image URL for Clarifai face detection
 app.post('/imageurl', (req, res) => {
