@@ -35,10 +35,6 @@ const handleSignin = (db, bcrypt) => (req, res) => {
       console.error('Error during sign-in:', err);
       res.status(500).json('Internal server error');
     });
-};
+}; // <-- make sure this closes your main function
 
-module.exports = { handleSignin };
-    });
-};
-
-module.exports = { handleSignin };
+module.exports = { handleSignin }; // <-- only this line at the end
