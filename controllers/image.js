@@ -11,6 +11,11 @@ const handleApiCall = async (req, res) => {
       return res.status(400).json({ error: 'No input image URL provided' });
     }
 
+
+const handleImage = async (req, res) => {
+  // entry count update logic
+};
+ 
     const response = await new Promise((resolve, reject) => {
       stub.PostModelOutputs(
         {
@@ -39,5 +44,6 @@ const handleApiCall = async (req, res) => {
 };
 
 module.exports = {
-  handleApiCall
+  handleApiCall,
+  handleImage
 };
