@@ -13,7 +13,7 @@ app.use(cors({
 app.use(express.json());
 
 // Clarifai setup
-const stub = ClarifaiStub();
+const stub = new ClarifaiStub();
 const metadata = new grpc.Metadata();
 metadata.set("authorization", "Key b27bf519c2414f5aabffbe6e5a532bf1"); // <-- Replace with your Clarifai API key
 
