@@ -24,7 +24,9 @@ const db = knex({
 const app = express();
 
 
-app.use(cors())
+app.use(cors({
+  origin: 'https://smart-brain-frontend-7xlb.onrender.com'
+}));
 app.use(express.json()); // latest version of exressJS now comes with Body-Parser!
 
 app.get('/', (req, res)=> { res.send(db.users) })
