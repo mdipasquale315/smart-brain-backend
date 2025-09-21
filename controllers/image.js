@@ -10,8 +10,7 @@ const handleApiCall = async (req, res) => {
     if (!input) {
       return res.status(400).json({ error: 'No input image URL provided' });
     }
-
-
+    
 const handleImage = async (req, res) => {
   // entry count update logic
 };
