@@ -11,7 +11,7 @@ const clarifaiRequest = (req, res) => {
 
     // This will be used by every Clarifai endpoint call
     const metadata = new grpc.Metadata();
-    metadata.set("authorization", "Key b27bf519c2414f5aabffbe6e5a532bf1);
+    metadata.set("authorization", "Key b27bf519c2414f5aabffbe6e5a532bf1");
 
     stub.PostModelOutputs(
         {
