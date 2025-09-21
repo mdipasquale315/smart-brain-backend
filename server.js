@@ -20,6 +20,11 @@ const db = knex({
     database : 'smart_brain_v2ks'
   }
 });
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'https://smart-brain-frontend-7xlb.onrender.com'
+}));
 
 const app = express();
 const { handleApiCall } = require('./controllers/image');
