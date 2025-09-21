@@ -5,7 +5,7 @@ const handleSignin = (db, bcrypt) => (req, res) => {
     return res.status(400).json('Incorrect form submission');
   }
 
-  // Find email and hash in login table
+  // Find email and hash
   db.select('email', 'hash')
     .from('login')
     .where('email', '=', email)
@@ -38,7 +38,6 @@ const handleSignin = (db, bcrypt) => (req, res) => {
 };
 
 module.exports = { handleSignin };
-      res.status(500).json('internal server error');
     });
 };
 
