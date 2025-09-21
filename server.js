@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser'); // Note: express.json() is sufficient for parsing JSON
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
@@ -9,6 +8,18 @@ const signin = require('./controllers/signin');
 const profile = require('./controllers/profile');
 const image = require('./controllers/image');
 
+const { handleApiCall, handleImage } = require('./controllers/image');
+
+const app = express();
+
+// Enable CORS for all origins during development/testing
+// For production, specify your frontend URL
+// Example: app.use(cors({ origin: 'https://smart-brain-frontend-7xlb.onrender.com' }));
+app.use(cors()); // Temporarily allow all origins for testing
+
+app.use(express.json()); // Built-in body parser
+
+// Database connection
 const db = knex({ 
   client: 'pg',
   connection: {
@@ -20,32 +31,23 @@ const db = knex({
   }
 });
 
-const { handleApiCall, handleImage } = require('./controllers/image');
-
-const app = express();
-
-app.use(cors({
-  origin: 'https://smart-brain-frontend-7xlb.onrender.com' // your frontend URL
-}));
-app.use(express.json()); // built-in body parser
-
 // Routes
 app.get('/', (req, res) => { res.send('Server is running') });
 
-// Sign in route
+// Sign in
 app.post('/signin', (req, res) => { signin.handleSignin(req, res, db, bcrypt) });
 
-// Register route
+// Register
 app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcrypt) });
 
-// Profile route
+// Profile
 app.get('/profile/:id', (req, res) => { profile.handleProfileGet(req, res, db) });
 
 // Update user entries
 app.put('/image', (req, res) => { image.handleImage(req, res, db) });
 
 // Face detection API call
-app.post('/imageurl', handleApiCall); // Using imported function directly
+app.post('/imageurl', handleApiCall);
 
 // Start server
 app.listen(3000, () => {
