@@ -1,72 +1,71 @@
-const {ClarifaiStub, grpc} = require("clarifai-nodejs-grpc");
+const clarifaiRequest = (req, res) => {
+    // Clarifai API: gRPC 
+    const APP_ID = 'face-detection';
+    const MODEL_ID = 'face-detection';
+    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
+    const IMAGE_URL = req.body.input;
 
-const stub = ClarifaiStub.grpc();
+    const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
 
-const metadata = new grpc.Metadata();
-metadata.set("authorization", "Key b27bf519c2414f5aabffbe6e5a532bf1");
+    const stub = ClarifaiStub.grpc();
 
-//const Clarifai = require('clarifai');
+    // This will be used by every Clarifai endpoint call
+    const metadata = new grpc.Metadata();
+    metadata.set("authorization", "Key " + PAT);
 
-//You must add your own API key here from Clarifai. 
-//const app = new Clarifai.App({
-// apiKey: 'b27bf519c2414f5aabffbe6e5a532bf1' 
-//});
-const handleApiCall = (req, res) => {
-stub.PostModelOutputs(
-    {
-        // This is the model ID of a publicly available General model. You may use any other public or custom model ID.
-        model_id: "face-detection",
-        inputs: [{data: {image: {url: req.body.input}}}]
-    },
-    metadata,
-    (err, response) => {
-        if (err) {
-            console.log("Error: " + err);
-            return;
+    stub.PostModelOutputs(
+        {
+            user_app_id: {
+                "user_id": USER_ID,
+                "app_id": APP_ID
+            },
+            model_id: MODEL_ID,
+            version_id: MODEL_VERSION_ID, // This is optional. Defaults to the latest model version
+            inputs: [
+                { data: { image: { url: IMAGE_URL, allow_duplicate_url: true } } }
+            ]
+        },
+        metadata,
+        (err, response) => {
+            if (err) {
+                throw new Error(err);
+            }
+
+            if (response.status.code !== 10000) {
+                // console.log(IMAGE_URL)
+                throw new Error("Post model outputs failed, status: " + response.status.description);
+            }
+
+            // Since we have one input, one output will exist here
+            const output = response.outputs[0];
+
+            // console.log("Predicted concepts:");
+            // for (const concept of output.data.concepts) {
+            //     console.log(concept.name + " " + concept.value);
+            // }
+            // console.log(output)
+            return res.json(output)
         }
 
-        if (response.status.code !== 10000) {
-            console.log("Received failed status: " + response.status.description + "\n" + response.status.details);
-            return;
-        }
-
-        console.log("Predicted concepts, with confidence values:")
-        for (const c of response.outputs[0].data.concepts) {
-            console.log(c.name + ": " + c.value);
-        }
-      res.json(response)
-    }
-);
-
-
-  // HEADS UP! Sometimes the Clarifai Models can be down or not working as they are constantly getting updated.
-  // A good way to check if the model you are using is up, is to check them on the clarifai website. For example,
-  // for the Face Detect Mode: https://www.clarifai.com/models/face-detection
-  // If that isn't working, then that means you will have to wait until their servers are back up. 
-
- // app.models.predict('face-detection', req.body.input)
-   // .then(data => {
-   //   res.json(data);
- //   })
- //   .catch(err => res.status(400).json('unable to work with API'))
+    );
 }
 
 const handleImage = (req, res, db) => {
-  const { id } = req.body;
-  db('users').where('id', '=', id)
-  .increment('entries', 1)
-  .returning('entries')
-  .then(entries => {
-    // If you are using knex.js version 1.0.0 or higher this now returns an array of objects. Therefore, the code goes from:
-    // entries[0] --> this used to return the entries
-    // TO
-    // entries[0].entries --> this now returns the entries
-    res.json(entries[0].entries);
-  })
-  .catch(err => res.status(400).json('unable to get entries'))
+    const { id } = req.body;
+    if (!id) {
+        return res.status(400).json("Invalid Form Submission...!");
+    }
+    db('users').where({ id })
+        .returning('entries')
+        .increment('entries', 1)
+        .then(entries => {
+            (entries.length) ? res.json(entries[0].entries)
+                : res.status(400).json("Entry not found...!");
+        })
+        .catch(err => res.status(400).json("Error updating entries..."));
 }
 
 module.exports = {
-  handleImage,
-  handleApiCall
+    handleImage,
+    clarifaiRequest
 }
