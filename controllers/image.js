@@ -12,7 +12,17 @@ const handleApiCall = async (req, res) => {
     }
     
 const handleImage = async (req, res) => {
-  // entry count update logic
+  const { id } = req.body;
+  // your database logic to update entries
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json('User not found');
+    user.entries++;
+    await user.save();
+    res.json(user.entries);
+  } catch (err) {
+    res.status(400).json('Unable to get entries');
+  }
 };
  
     const response = await new Promise((resolve, reject) => {
