@@ -24,9 +24,6 @@ const db = knex({
 
 ;
 
-const { handleImage, handleApiCall } = require('./controllers/image');
-
-
 
 const app = express();
 app.use(cors({
