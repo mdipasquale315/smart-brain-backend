@@ -32,9 +32,8 @@ app.use(cors({
 app.use(express.json()); // latest version of exressJS now comes with Body-Parser!
 const { handleApiCall, handleImage } = require('./controllers/image');
 
-app.put('/image', handleImage); // for updating entries
-app.post('/imageurl', handleApiCall); // for face detection
-
+app.put('/image', handleImage);
+app.post('/imageurl', handleApiCall);
 
 
 app.get('/', (req, res)=> { res.send(db.users) })
