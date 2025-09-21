@@ -1,3 +1,10 @@
+const {ClarifaiStub, grpc} = require("clarifai-nodejs-grpc");
+
+const stub = ClarifaiStub.grpc();
+
+const metadata = new grpc.Metadata();
+metadata.set("authorization", "Key YOUR_CLARIFAI_API_KEY");
+
 const Clarifai = require('clarifai');
 
 //You must add your own API key here from Clarifai. 
