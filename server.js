@@ -22,7 +22,9 @@ const db = knex({
 });
 
 const app = express();
+const { handleApiCall } = require('./controllers/image');
 
+app.post('/imageurl', handleApiCall);
 
 app.use(cors({
   origin: 'https://smart-brain-frontend-7xlb.onrender.com'
