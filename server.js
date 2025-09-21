@@ -30,7 +30,7 @@ app.use(cors({
   origin: 'https://smart-brain-frontend-7xlb.onrender.com'
 }));
 app.use(express.json()); // latest version of exressJS now comes with Body-Parser!
-const { handleApiCall } = require('./controllers/image');
+const { handleApiCall, handleImage } = require('./controllers/image');
 
 app.put('/image', handleImage); // for updating entries
 app.post('/imageurl', handleApiCall); // for face detection
