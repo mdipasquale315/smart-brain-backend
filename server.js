@@ -11,6 +11,12 @@ const handleSignin = require('./controllers/signin');
 
 const { handleApiCall, handleImage } = require('./controllers/image');
 
+const handleSignin = require('./controllers/signin');
+app.post('/signin', (req, res) => {
+  handleSignin(db, bcrypt)(req, res);
+});
+
+
 const app = express();
 
 // Configure CORS to allow requests from your deployed frontend
