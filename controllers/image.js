@@ -1,14 +1,17 @@
 const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
 
+// Initialize Clarifai stub
 const stub = new ClarifaiStub();
+// Set your API key here; consider using environment variables for security
 const metadata = new grpc.Metadata();
-metadata.set("authorization", "Key eaab5da8171941a28ce2fd286d8954ce"); // <-- Replace with your actual API key
+metadata.set("authorization", "Key eaab5da8171941a28ce2fd286d8954ce"); // replace with your actual API key
 
 const handleApiCall = async (req, res) => {
   const { input } = req.body;
 
-  if (!input) {
-    return res.status(400).json({ error: 'No input image URL provided' });
+  // Validate input
+  if (!input || typeof input !== 'string') {
+    return res.status(400).json({ error: 'Invalid or missing input image URL' });
   }
 
   try {
