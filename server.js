@@ -12,9 +12,14 @@ const { handleApiCall, handleImage } = require('./controllers/image');
 
 const app = express();
 
-// Enable CORS for all origins during development/testing
-// For production, specify your frontend URL for security
-app.use(cors()); // Temporarily allow all origins for testing
+// Configure CORS to allow requests from your deployed frontend
+const corsOptions = {
+  origin: 'https://smart-brain-frontend-7xlb.onrender.com', // replace if different
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions)); // Enable CORS with specific origin
+app.options('*', cors(corsOptions)); // Handle preflight requests
 
 app.use(express.json()); // Built-in body parser
 
