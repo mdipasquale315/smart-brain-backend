@@ -21,7 +21,7 @@ app.use(express.json()); // body parser
 // Database setup
 const db = knex({ 
   client: 'pg',
-  connection: {
+  connection: 'postgresql://smart_brain_v2ks_user:rrXdrLyOD8bYVKbKCtIEV56kRuS0vs8R@dpg-d36vs80gjchc73brcnog-a.oregon-postgres.render.com:5432/smart_brain_v2ks' {
     host: 'dpg-d36vs80gjchc73brcnog-a.oregon-postgres.render.com',
     user: 'smart_brain_v2ks_user',
     password: 'rrXdrLyOD8bYVKbKCtIEV56kRuS0vs8R',
