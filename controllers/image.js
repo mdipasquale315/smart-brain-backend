@@ -1,10 +1,17 @@
 const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
 
+// Use your actual API key here
+const API_KEY = "eaab5da8171941a28ce2fd286d8954ce";
+
 // Initialize Clarifai stub
 const stub = new ClarifaiStub();
-// Set your API key here; consider using environment variables for security
+
+// Set authorization metadata
 const metadata = new grpc.Metadata();
-metadata.set("authorization", "Key eaab5da8171941a28ce2fd286d8954ce"); // replace with your actual API key
+metadata.set("authorization", `Key ${API_KEY}`);
+
+// Initialize total entries counter
+let totalEntries = 0;
 
 const handleApiCall = async (req, res) => {
   const { input } = req.body;
@@ -15,7 +22,6 @@ const handleApiCall = async (req, res) => {
   }
 
   try {
-    // Call Clarifai API
     const response = await new Promise((resolve, reject) => {
       stub.PostModelOutputs(
         {
@@ -28,7 +34,7 @@ const handleApiCall = async (req, res) => {
             console.error('Clarifai API error:', err);
             reject(err);
           } else {
-            console.log('Clarifai response:', response); // Log raw response for debugging
+            console.log('Clarifai response:', response);
             resolve(response);
           }
         }
@@ -41,8 +47,15 @@ const handleApiCall = async (req, res) => {
     }
 
     const regions = response.outputs[0]?.data?.regions || [];
-    // Send only the regions array (bounding boxes info)
-    res.json({ faceBoxes: regions });
+    console.log('Detected regions:', regions);
+
+    // Increment total entries if faces are detected
+    if (regions.length > 0) {
+      totalEntries++;
+    }
+
+    // Send face regions and total entries back
+    res.json({ faceBoxes: regions, totalEntries });
   } catch (error) {
     console.error('Error in handleApiCall:', error);
     res.status(500).json({ error: 'Server error', details: error.message });
