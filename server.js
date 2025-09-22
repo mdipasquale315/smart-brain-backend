@@ -5,6 +5,7 @@ const cors = require('cors');
 const knex = require('knex');
 
 const handleSignin = require('./controllers/signin');
+const handleRegister = require('./controllers/register');
 
 const app = express();
 
@@ -23,9 +24,7 @@ const db = knex({
   client: 'pg',
   connection: {
     connectionString: 'postgresql://smart_brain_v2ks_user:rrXdrLyOD8bYVKbKCtIEV56kRuS0vs8R@dpg-d36vs80gjchc73brcnog-a.oregon-postgres.render.com:5432/smart_brain_v2ks',
-    ssl: {
-      rejectUnauthorized: false
-    }
+    ssl: { rejectUnauthorized: false }
   }
 });
 
@@ -33,13 +32,12 @@ const db = knex({
 app.get('/', (req, res) => res.send('Server is running'));
 
 // Sign in route
-app.post('/signin', (req, res) => {
-  handleSignin(db, bcrypt)(req, res);
-});
+app.post('/signin', (req, res) => handleSignin(db, bcrypt)(req, res));
 
-// Other routes...
-// e.g., register, profile, image, etc.
+// Register route
+app.post('/register', (req, res) => handleRegister(req, res, db, bcrypt));
 
+// Start server
 app.listen(3000, () => {
   console.log('app is running on port 3000');
 });
