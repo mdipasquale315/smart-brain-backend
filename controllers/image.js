@@ -1,39 +1,54 @@
-const Clarifai = require('clarifai');
+const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
 
-//You must add your own API key here from Clarifai. 
-const app = new Clarifai.App({
- apiKey: 'b27bf519c2414f5aabffbe6e5a532bf1' 
-});
+// Initialize Clarifai stub
+const stub = new ClarifaiStub();
+// Set your API key here; consider using environment variables for security
+const metadata = new grpc.Metadata();
+metadata.set("authorization", "Key eaab5da8171941a28ce2fd286d8954ce"); // replace with your actual API key
 
-const handleApiCall = (req, res) => {
-  // HEADS UP! Sometimes the Clarifai Models can be down or not working as they are constantly getting updated.
-  // A good way to check if the model you are using is up, is to check them on the clarifai website. For example,
-  // for the Face Detect Mode: https://www.clarifai.com/models/face-detection
-  // If that isn't working, then that means you will have to wait until their servers are back up. 
+const handleApiCall = async (req, res) => {
+  const { input } = req.body;
 
-  app.models.predict('face-detection', req.body.input)
-    .then(data => {
-      res.json(data);
-    })
-    .catch(err => res.status(400).json('unable to work with API'))
-}
+  // Validate input
+  if (!input || typeof input !== 'string') {
+    return res.status(400).json({ error: 'Invalid or missing input image URL' });
+  }
 
-const handleImage = (req, res, db) => {
-  const { id } = req.body;
-  db('users').where('id', '=', id)
-  .increment('entries', 1)
-  .returning('entries')
-  .then(entries => {
-    // If you are using knex.js version 1.0.0 or higher this now returns an array of objects. Therefore, the code goes from:
-    // entries[0] --> this used to return the entries
-    // TO
-    // entries[0].entries --> this now returns the entries
-    res.json(entries[0].entries);
-  })
-  .catch(err => res.status(400).json('unable to get entries'))
-}
+  try {
+    // Call Clarifai API
+    const response = await new Promise((resolve, reject) => {
+      stub.PostModelOutputs(
+        {
+          model_id: "a403429f2ddf4b49b307e318f00e528b",
+          inputs: [{ data: { image: { url: input } } }]
+        },
+        metadata,
+        (err, response) => {
+          if (err) {
+            console.error('Clarifai API error:', err);
+            reject(err);
+          } else {
+            console.log('Clarifai response:', response); // Log raw response for debugging
+            resolve(response);
+          }
+        }
+      );
+    });
+
+    if (response.status.code !== 10000) {
+      console.error('Clarifai API error:', response.status.description);
+      return res.status(500).json({ error: 'Clarifai API error', details: response.status.description });
+    }
+
+    const regions = response.outputs[0]?.data?.regions || [];
+    // Send only the regions array (bounding boxes info)
+    res.json({ faceBoxes: regions });
+  } catch (error) {
+    console.error('Error in handleApiCall:', error);
+    res.status(500).json({ error: 'Server error', details: error.message });
+  }
+};
 
 module.exports = {
-  handleImage,
   handleApiCall
-}
+};
