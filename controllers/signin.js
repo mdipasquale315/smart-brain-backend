@@ -45,4 +45,4 @@ const handleSignin = (db, bcrypt) => (req, res) => {
     });
 };
 
-module.exports = handleSignin; // Export using CommonJS
+module.exports = handleSignin; // Export as a function
