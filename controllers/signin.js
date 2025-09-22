@@ -1,3 +1,4 @@
+// controllers/signin.js
 const handleSignin = (db, bcrypt) => (req, res) => {
   const { email, password } = req.body;
 
@@ -44,4 +45,4 @@ const handleSignin = (db, bcrypt) => (req, res) => {
     });
 };
 
-export default handleSignin;
+module.exports = handleSignin; // Export using CommonJS
