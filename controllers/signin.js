@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 // controllers/signin.js
 const handleSignin = (db, bcrypt) => (req, res) => {
   const { email, password } = req.body;
