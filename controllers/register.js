@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+
 const registerHandler = async (req, res, db, bcrypt) => {
   const { email, name, password } = req.body;
   if (!email || !name || !password) {
@@ -32,6 +33,4 @@ const registerHandler = async (req, res, db, bcrypt) => {
   }
 };
 
-export default function registerHandler(req, res) {
-  // ...
-}
+export default registerHandler;
