@@ -1,12 +1,11 @@
-// server.js
-const express = require('express');
-const bcrypt = require('bcrypt-nodejs');
-const cors = require('cors');
-const knex = require('knex');
+import express from 'express';
+import bcrypt from 'bcrypt-nodejs';
+import cors from 'cors';
+import knex from 'knex';
 import fetch from 'node-fetch';
 
-const handleSignin = require('./controllers/signin');
-const handleRegister = require('./controllers/register');
+import handleSignin from './controllers/signin.js';
+import handleRegister from './controllers/register.js';
 
 const app = express();
 
