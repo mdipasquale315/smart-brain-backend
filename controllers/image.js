@@ -1,4 +1,5 @@
 import Clarifai from 'clarifai';
+import fetch from 'node-fetch';
 
 // Initialize Clarifai app with your API key
 const app = new Clarifai.App({
