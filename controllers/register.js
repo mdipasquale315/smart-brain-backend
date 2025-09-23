@@ -31,4 +31,6 @@ const registerHandler = async (req, res, db, bcrypt) => {
   }
 };
 
-export default registerHandler;
+export default function registerHandler(req, res) {
+  // ...
+}
