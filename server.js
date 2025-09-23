@@ -3,6 +3,7 @@ const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+import fetch from 'node-fetch';
 
 const handleSignin = require('./controllers/signin');
 const handleRegister = require('./controllers/register');
