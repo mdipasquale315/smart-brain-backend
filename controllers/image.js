@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 
 // Initialize Clarifai app with your API key
 const app = new Clarifai.App({
-  apiKey: 'bb140ae5c13c4566bba41419915002f4'
+  apiKey: 'eaab5da8171941a28ce2fd286d8954ce'
 });
 
 const handleApiCall = (req, res) => {
