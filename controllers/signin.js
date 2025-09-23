@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-// controllers/signin.js
+
 const handleSignin = (db, bcrypt) => (req, res) => {
   const { email, password } = req.body;
 
@@ -46,4 +46,4 @@ const handleSignin = (db, bcrypt) => (req, res) => {
     });
 };
 
-module.exports = handleSignin; // Export as a function
+export default handleSignin;
