@@ -1,47 +1,69 @@
-const clarifai = require('@clarifai/grpc');
+const APP_ID = 'face-detection';
+    const MODEL_ID = 'face-detection';
+    const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
+    const IMAGE_URL = req.body.input;
 
-// Set up the Clarifai gRPC client
-const { ClarifaiStub, grpc } = clarifai;
+    const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
 
-const stub = new ClarifaiStub();
+    const stub = ClarifaiStub.grpc();
 
-/**
- * Call Clarifai face detection model via gRPC
- * @param {string} imageUrl - URL of the image
- */
-function predictFaceDetection(imageUrl) {
-  stub.PostModelOutputs(
-    {
-      user_app_id: {
-        user_id: '9d971wpgvajg', // replace with your user ID
-        app_id: 'face-detection'     // replace with your app ID
-      },
-      model_id: 'face-detection',
-      version_id: '6dc7e46bc9124c5c8824be4822abe105', // specific version
-      inputs: [
+    // This will be used by every Clarifai endpoint call
+    const metadata = new grpc.Metadata();
+    metadata.set("authorization", "Key " + PAT);
+
+    stub.PostModelOutputs(
         {
-          data: {
-            image: {
-              url: imageUrl
+            user_app_id: {
+                "user_id": '9d971wpgvajg', ,
+                "app_id": 'face-detection'
+            },
+            model_id: MODEL_ID,
+            version_id: MODEL_VERSION_ID, // This is optional. Defaults to the latest model version
+            inputs: [
+                { data: { image: { url: IMAGE_URL, allow_duplicate_url: true } } }
+            ]
+        },
+        metadata,
+        (err, response) => {
+            if (err) {
+                throw new Error(err);
             }
-          }
+
+            if (response.status.code !== 10000) {
+                // console.log(IMAGE_URL)
+                throw new Error("Post model outputs failed, status: " + response.status.description);
+            }
+
+            // Since we have one input, one output will exist here
+            const output = response.outputs[0];
+
+            // console.log("Predicted concepts:");
+            // for (const concept of output.data.concepts) {
+            //     console.log(concept.name + " " + concept.value);
+            // }
+            // console.log(output)
+            return res.json(output)
         }
-      ]
-    },
-    // callback function
-    (err, response) => {
-      if (err) {
-        console.error('Error: ', err);
-        return;
-      }
-      if (response.status.code !== 10000) {
-        console.error('Failed response: ', response.status.description);
-        return;
-      }
-      console.log('Face detection result:', response);
-    }
-  );
+
+    );
 }
 
-// Example usage
-predictFaceDetection('https://samples.clarifai.com/metro-north.jpg');
+const handleImage = (req, res, db) => {
+    const { id } = req.body;
+    if (!id) {
+        return res.status(400).json("Invalid Form Submission...!");
+    }
+    db('users').where({ id })
+        .returning('entries')
+        .increment('entries', 1)
+        .then(entries => {
+            (entries.length) ? res.json(entries[0].entries)
+                : res.status(400).json("Entry not found...!");
+        })
+        .catch(err => res.status(400).json("Error updating entries..."));
+}
+
+module.exports = {
+    handleImage,
+    clarifaiRequest
+}
