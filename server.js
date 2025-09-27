@@ -1,25 +1,14 @@
-import express from 'express';
-import bcrypt from 'bcrypt-nodejs';
-import cors from 'cors';
-import knex from 'knex';
-import fetch from 'node-fetch';
+const signup = require('./controllers/signup');
+const signin = require('./controllers/signin');
+const profile = require('./controllers/profile');
+const image = require('./controllers/image');
 
-import handleSignin from './controllers/signin.js';
-import handleRegister from './controllers/register.js';
+const saltRounds = 10;
 
 const app = express();
+app.use(express.json());
+app.use(cors());
 
-// CORS setup
-const corsOptions = {
-  origin: 'https://smart-brain-frontend-7xlb.onrender.com',
-  optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-app.use(express.json()); // body parser
-
-// Database setup
 const db = knex({ 
   client: 'pg',
   connection: {
@@ -28,14 +17,16 @@ const db = knex({
   }
 });
 
-// Routes
-app.get('/', (req, res) => res.send('Server is running'));
 
-// Sign in route
-app.post('/signin', (req, res) => handleSignin(db, bcrypt)(req, res));
+app.get('/', (req, res) => { res.json("Welcome to Face Detection API...") });
 
-// Register route
-app.post('/register', (req, res) => handleRegister(req, res, db, bcrypt));
+// Dependency Injection
+app.post('/signin', (req, res) => { signin.handleSignin(req, res, db, bcrypt) });
+app.post('/signup', (req, res) => { signup.handleSignup(req, res, db, bcrypt, saltRounds) });
+app.get('/profile/:userId', (req, res) => { profile.handleGetProfile(req, res, db) });
+app.put('/image', (req, res) => { image.handleImage(req, res, db) });
+app.post('/imageurl', (req, res) => { image.clarifaiRequest(req, res) });
+
 
 // Start server
 app.listen(3000, () => {
