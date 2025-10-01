@@ -1,19 +1,19 @@
 const handleApiCall = (req, res) => {
+    const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
+    
     const APP_ID = 'face-detection';
     const MODEL_ID = 'face-detection';
     const MODEL_VERSION_ID = '6dc7e46bc9124c5c8824be4822abe105';
     const IMAGE_URL = req.body.input;
-    const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
+    
     const stub = ClarifaiStub.grpc();
-    
-    // This will be used by every Clarifai endpoint call
     const metadata = new grpc.Metadata();
-    metadata.set("authorization", "Key " + process.env.CLARIFAI_API_KEY); // Use environment variable
+    metadata.set("authorization", "Key " + process.env.CLARIFAI_API_KEY);
     
-    stub.postModelOutputs(  // Changed from PostModelOutputs to postModelOutputs
+    stub.postModelOutputs(
         {
             user_app_id: {
-                "user_id": '9d971wpgvajg',  // Removed extra comma
+                "user_id": '9d971wpgvajg',
                 "app_id": 'face-detection'
             },
             model_id: MODEL_ID,
@@ -26,18 +26,18 @@ const handleApiCall = (req, res) => {
         (err, response) => {
             if (err) {
                 console.error("Clarifai API Error:", err);
-                return res.status(400).json("Error calling Clarifai API");
+                return res.status(400).json({ error: "Error calling Clarifai API" });
             }
             if (response.status.code !== 10000) {
                 console.error("Clarifai Response Error:", response.status.description);
-                return res.status(400).json("Post model outputs failed: " + response.status.description);
+                return res.status(400).json({ error: "Post model outputs failed: " + response.status.description });
             }
             
             const output = response.outputs[0];
             return res.json(output);
         }
     );
-}
+};
 
 const handleImage = (req, res, db) => {
     const { id } = req.body;
@@ -52,9 +52,9 @@ const handleImage = (req, res, db) => {
                 : res.status(400).json("Entry not found...!");
         })
         .catch(err => res.status(400).json("Error updating entries..."));
-}
+};
 
 module.exports = {
     handleImage,
-    handleApiCall  // Changed from clarifaiRequest
-}
+    handleApiCall
+};
