@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 
 const handleSignin = (db, bcrypt) => (req, res) => {
   const { email, password } = req.body;
