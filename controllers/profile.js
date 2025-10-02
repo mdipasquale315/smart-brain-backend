@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const handleProfileGet = (req, res, db) => {
+const handleGetProfile = (req, res, db) => {  // Changed function name
   const { id } = req.params; 
   db.select('*').from('users').where({id})
     .then(user => {
@@ -14,5 +14,5 @@ const handleProfileGet = (req, res, db) => {
 };
 
 module.exports = {
-    handleGetProfile
+  handleGetProfile  // Matches function name
 };
