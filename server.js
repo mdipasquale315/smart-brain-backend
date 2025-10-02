@@ -9,8 +9,15 @@ const image = require('./controllers/image.js');
 
 const saltRounds = 10;
 const app = express();
+
+// CORS must come before express.json()
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}));
+
 app.use(express.json());
-app.use(cors());
 
 const db = knex({ 
   client: 'pg',
