@@ -22,7 +22,7 @@ const db = knex({
 
 app.get('/', (req, res) => { res.json("Welcome to Face Detection API...") });
 // Dependency Injection
-app.post('/signin', (req, res) => { signin.handleSignin(req, res, db, bcrypt) });
+app.post('/signin', signin.handleSignin(db, bcrypt));  // FIXED: Pass db and bcrypt directly
 app.post('/signup', (req, res) => { signup.registerHandler(req, res, db, bcrypt, saltRounds) });
 app.get('/profile/:userId', (req, res) => { profile.handleGetProfile(req, res, db) });
 app.put('/image', (req, res) => { image.handleImage(req, res, db) });
