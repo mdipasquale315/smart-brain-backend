@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 
 const handleProfileGet = (req, res, db) => {
   const { id } = req.params; 
